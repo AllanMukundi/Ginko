@@ -1,6 +1,21 @@
 require 'discordrb'
+require_relative 'glot_api'
 
 bot = Discordrb::Bot.new(token: ENV['DISCORD_TOKEN'])
+
+RUN_REGEX = %r{\s*(.+)\s+(.+)\s+(```\w+\n+|```)([\s\S]+)```}
+
+def languages(event)
+  language_list = get_languages
+  resp = 'I am able to compile code written in:'
+  language_list.each { |lang| resp += " #{lang}"}
+  event.respond(resp)
+end
+
+def run_code(event, language, code)
+  event.respond(language)
+  event.respond(code)
+end
 
 def help_text
     %Q{Hey, I'm Ginko, your robot code compiler. To use me properly,\
@@ -10,10 +25,11 @@ def help_text
 end
 
 bot.mention do |event|
-    if event.content =~ %r{\s*(.*)\s+(```|```[a-zA-Z]+[\s]+)(.*)\s*```}
-        event.respond("Let's compile!")
+    if event.content =~ RUN_REGEX
+      data = event.content.match(RUN_REGEX).captures
+      run_code(event, data[1], data[3])
     elsif event.content =~ %r{languages}
-        event.respond("List of languages")
+      languages(event)
     elsif event.content =~ %r{info}
         event.respond("https://github.com/AllanMukundi/Ginko")
     else
