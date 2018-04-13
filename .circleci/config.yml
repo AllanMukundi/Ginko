@@ -1,13 +1,16 @@
 version: 2
 jobs:
-  build:
+  test:
     docker:
-      - image: debian:stretch
+      - image: circleci/ruby:2.4.3
     steps:
       - checkout
       - run:
-          name: Greeting
-          command: echo Hello, world.
-      - run:
-          name: Print the Current Time
-          command: date
+          name: Run tests
+          command: |
+            bundle install
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
