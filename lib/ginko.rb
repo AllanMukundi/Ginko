@@ -1,7 +1,7 @@
 require 'discordrb'
 require_relative 'glot_api'
 
-bot = Discordrb::Bot.new(token: ENV['DISCORD_TOKEN']
+bot = Discordrb::Bot.new(token: ENV['DISCORD_TOKEN'])
 
 RUN_REGEX = %r{\s*(.+)\s+(.+)\s+(```\w+\n+|```)([\s\S]+)```}
 
