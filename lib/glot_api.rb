@@ -1,40 +1,46 @@
 require 'net/http'
 require 'json'
 
-def get_languages
-  url = 'https://run.glot.io/languages'
-  uri = URI(url)
+class Glot
 
-  json_response = Net::HTTP.get(uri)
-  response = JSON.parse(json_response)
-  languages = response.map { |lang| lang['name'] }
-end
+  def initialize(token)
+    @token = token
+  end
 
-def run(event, language, code)
-  url = "https://run.glot.io/languages/#{language}/latest"
-  uri = URI(url)
+  def languages
+    url = 'https://run.glot.io/languages'
+    uri = URI(url)
 
-  data = {
-    'files' => [{'name' => 'main', 'content' => code}]
-  }
+    json_response = Net::HTTP.get(uri)
+    response = JSON.parse(json_response)
+    languages = response.map { |lang| lang['name'] }
+  end
 
-  https = Net::HTTP.new(uri.host, uri.port)
-  https.use_ssl = true
+  def run(event, language, code)
+    url = "https://run.glot.io/languages/#{language}/latest"
+    uri = URI(url)
 
-  request = Net::HTTP::Post.new(uri)
+    data = {
+      'files' => [{'name' => 'main', 'content' => code}]
+    }
 
-  request['Authorization'] = "Token #{ENV['GLOT_TOKEN']}"
-  request['Content-type'] = 'application/json'
+    https = Net::HTTP.new(uri.host, uri.port)
+    https.use_ssl = true
 
-  request.body = data.to_json
-  response = JSON.parse(https.request(request).body)
+    request = Net::HTTP::Post.new(uri)
 
-  stdout = response['stdout']
-  stderr = response['stderr']
-  error = response['error']
+    request['Authorization'] = "Token #{@token}"
+    request['Content-type'] = 'application/json'
 
-  event.respond("STDOUT:\n```#{stdout}```") if stdout != ''
-  event.respond("STDERR:\n```#{stderr}```") if stderr != ''
-  event.respond("ERROR:\n```#{error}```") if error != ''
+    request.body = data.to_json
+    response = JSON.parse(https.request(request).body)
 
+    stdout = response['stdout']
+    stderr = response['stderr']
+    error = response['error']
+
+    event.respond("STDOUT :white_check_mark::\n```\n#{stdout}```") if stdout != ''
+    event.respond("STDERR :x::\n```\n#{stderr}```") if stderr != ''
+    event.respond("ERROR :loudspeaker::\n```\n#{error}```") if error != ''
+  end
 end

@@ -1,1 +1,1 @@
-worker: bundle exec ruby lib/ginko.rb
+worker: bundle exec ruby lib/main.rb
