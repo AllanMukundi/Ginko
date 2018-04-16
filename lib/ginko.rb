@@ -18,7 +18,7 @@ class Ginko
   end
 
   def run_code(event, language, code)
-    @glot.run(event, language, code)
+    @glot.run(event, language.downcase.strip, code)
   end
 
   def help_text
@@ -33,9 +33,9 @@ class Ginko
         if event.content =~ RUN_REGEX
           data = event.content.match(RUN_REGEX).captures
           run_code(event, data[1], data[3])
-        elsif event.content =~ %r{languages}
+        elsif event.content.downcase =~ %r{languages}
           languages(event)
-        elsif event.content =~ %r{info}
+        elsif event.content.downcase =~ %r{info}
             event.respond("https://github.com/AllanMukundi/Ginko")
         else
             event.respond(help_text)
